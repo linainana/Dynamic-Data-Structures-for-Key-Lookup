@@ -42,3 +42,16 @@ void cleanLine(uchar* s){
     i++;
   }
 }
+
+uchar* readWord(ifstream& file){
+  char buffer[256];
+  file.getline(buffer, 256);
+  int n = 0;
+  while(buffer[n] != '\0')
+    n++;
+  uchar* palabra = new uchar[n + 1];
+  for(int i=0; i<n; i++)
+    palabra[i] = (uchar) buffer[i];
+  palabra[n] = '\0';
+  return palabra;
+}
