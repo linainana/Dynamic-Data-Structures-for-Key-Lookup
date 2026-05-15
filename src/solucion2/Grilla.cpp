@@ -102,6 +102,7 @@ bool Grilla::remove(uchar* palabra){
   } else {
      //si era el primero, el nuevo inicio de la base es el siguiente
      base = p->next;
+     head = base;
   }
 
   if(p->next != nullptr){
