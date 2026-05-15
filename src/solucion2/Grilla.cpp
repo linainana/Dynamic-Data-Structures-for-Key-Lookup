@@ -63,3 +63,17 @@ bool Grilla::insert(uchar* palabra){
   p->next = nuevo;
   return true;
 }
+
+//buscar
+Nodo* Grilla::search(uchar* palabra){
+  Nodo* p = head;
+  while(p != nullptr){
+    while(p->next != nullptr && compare(p->next->key, palabra) <= 0){
+      p = p->next;
+    }
+    if(compare(p->key, palabra) == 0)
+      return p;
+    p = p->down;
+  }
+  return nullptr;
+}
