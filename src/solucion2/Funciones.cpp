@@ -22,6 +22,7 @@ int compare(uchar* a, uchar* b){
     return -1;
   return 1;
 }
+
 uchar* copyString(uchar* s){
   int n = length(s);
   uchar* copia = new uchar[n + 1];
@@ -29,4 +30,15 @@ uchar* copyString(uchar* s){
     copia[i] = s[i];
   copia[n] = '\0';
   return copia;
+}
+
+void cleanLine(uchar* s){
+  int i = 0;
+  while(s[i] != '\0'){
+    if(s[i] == '\n' || s[i] == '\r'){
+      s[i] = '\0';
+      return;
+    }
+    i++;
+  }
 }
