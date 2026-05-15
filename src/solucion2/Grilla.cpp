@@ -194,3 +194,30 @@ int Grilla::sizeLevel(Nodo* l){
   }
   return cont;
 }
+
+Nodo* Grilla::buildUpperLevel(Nodo* lower){
+  if(lower == nullptr)
+    return nullptr;
+  Nodo* upper = nullptr;
+  Nodo* ultimo = nullptr;
+  Nodo* p = lower;
+  int cont = 0;
+  while(p != nullptr){
+    if(cont % k == 0){
+      Nodo* nuevo = createNode(p->key);
+      nuevo->down = p;
+      if(upper == nullptr){
+         upper = nuevo;
+         ultimo = nuevo;
+      }
+      else{
+         ultimo->next nuevo;
+         nuevo->prev = ultimo;
+         ultimo = nuevo;
+      }
+    }
+    cont++;
+    p = p->next;
+  }
+  return upper;
+}
