@@ -10,3 +10,15 @@ Grilla::Grilla(int K){
 Grilla::~Grilla(){
   deleteLevels(head);
 }
+//nodo
+Nodo* Grilla::createNode(uchar* palabra){
+  Nodo* nuevo = new Nodo;
+
+  nuevo->key = copyString(palabra);
+
+  nuevo->netx = nullptr;
+  nuevo->prev = nullptr;
+  nuevo->down = nullptr;
+
+  return nuevo;
+}
