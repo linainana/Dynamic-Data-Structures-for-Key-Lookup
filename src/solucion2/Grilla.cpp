@@ -79,19 +79,21 @@ Nodo* Grilla::search(uchar* palabra){
 }
 
 //eliminar 
-
 bool Grilla::remove(uchar* palabra){
-//bajar hasta el nivel base (L1)
+  //bajar hasta el nivel base (L1)
   Nodo* base = head;
-  if(base == nullptr) return false;
-  while(base->down != nullptr) base = base->down;
+  if(base == nullptr) 
+    return false;
+  while(base->down != nullptr) 
+    base = base->down;
   //buscar la palbra en el nivel base (recorrido lineal)
   Nodo* p = base;
   while(p != nullptr && commpare(p->key, palabra) 1= 0){
     p = p->next;
   }
   //si no se encuentra, no hay nada que eliminar 
-  if(p == nullptr) return false;
+  if(p == nullptr) 
+    return false;
  
   //desconectar el nodo de la lista doblemente enlazada (L1)
   if(p->prev != nullptr){
