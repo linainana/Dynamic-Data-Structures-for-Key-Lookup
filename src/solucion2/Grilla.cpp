@@ -71,8 +71,9 @@ Nodo* Grilla::search(uchar* palabra){
     while(p->next != nullptr && compare(p->next->key, palabra) <= 0){
       p = p->next;
     }
-    if(compare(p->key, palabra) == 0)
+    if(compare(p->key, palabra) == 0){
       return p;
+    } 
     p = p->down;
   }
   return nullptr;
@@ -97,7 +98,7 @@ bool Grilla::remove(uchar* palabra){
  
   //desconectar el nodo de la lista doblemente enlazada (L1)
   if(p->prev != nullptr){
-     p->prev->next = p->prev;
+    p->prev->next = p->next; 
   } else {
      //si era el primero, el nuevo inicio de la base es el siguiente
      base = p->next;
@@ -138,7 +139,6 @@ void Grilla::deleteUpperLevels(){
     Nodo* p = nivelActual;
     while(p != nullptr){
       Nodo* sig = p->next;
-      delete[] p->key; //borrar la copia de la palabra 
       delete p; //borrar el nodo
       p = sig;
     }
@@ -206,6 +206,7 @@ Nodo* Grilla::buildUpperLevel(Nodo* lower){
     if(cont % k == 0){
       Nodo* nuevo = createNode(p->key);
       nuevo->down = p;
+      nuevo->next = nullptr;
       if(upper == nullptr){
          upper = nuevo;
          ultimo = nuevo;
@@ -218,6 +219,9 @@ Nodo* Grilla::buildUpperLevel(Nodo* lower){
     }
     cont++;
     p = p->next;
+  }
+  if (ultimo != nullptr){
+    ultimo->next = nullptr;
   }
   return upper;
 }
