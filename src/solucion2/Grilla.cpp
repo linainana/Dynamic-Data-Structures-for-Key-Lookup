@@ -148,3 +148,14 @@ void Grilla::deleteUpperLevels(){
   head = base;
   levels = 1;
 }
+
+//imprimir 
+void Grilla::printLevel(Nodo* l){
+  Nodo* p = l;
+  while(p != nullptr){
+    cout << p->key << " ";
+    p = p->next;
+  }
+  cout << endl;
+}
+
