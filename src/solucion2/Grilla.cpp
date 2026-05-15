@@ -109,7 +109,7 @@ bool Grilla::remove(uchar* palabra){
   delete[] p->key;
   delete p;
 
-  //saneanmiento y actualización de la grilla 
+  //saneamiento y actualización de la grilla 
   //borramos los índices viejos que ya no son validos 
   deleteUpperLevels();
 
