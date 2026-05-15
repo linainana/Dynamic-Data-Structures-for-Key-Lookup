@@ -184,3 +184,13 @@ void Grilla ::deleteLevels(Nodo* l){
     l = nextLevel;
   }
 }
+
+//niveles
+int Grilla::sizeLevel(Nodo* l){
+  int cont = 0;
+  while(l != nullptr){
+    cont++;
+    l = l->next:
+  }
+  return cont;
+}
