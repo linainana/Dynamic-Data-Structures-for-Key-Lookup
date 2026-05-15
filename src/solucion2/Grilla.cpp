@@ -159,3 +159,28 @@ void Grilla::printLevel(Nodo* l){
   cout << endl;
 }
 
+void Grilla::printGrid(){
+  Nodo* nivel = head;
+  int i = levels;
+  while(nivel != nullptr){
+    cout << "Nivel " << i << ": ";
+    printLevel(nivel);
+    nivel = nivel->down;
+    i--;
+  }
+}
+
+//memoria 
+void Grilla ::deleteLevels(Nodo* l){
+  while(l != nulptr){
+    Nodo* nextLevel = l->down;
+    Nodo* p = l;
+    while(p != nullptr){
+      Nodo* q = p->key;
+      delete[] p.>key;
+      delete p;
+      p = q;
+    }
+    l = nextLevel;
+  }
+}
