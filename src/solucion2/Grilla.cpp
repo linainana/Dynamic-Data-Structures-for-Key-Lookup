@@ -3,7 +3,7 @@
 
 Grilla::Grilla(int K){
   head = nullptr;
-  evels = 1;
+  levels = 1;
   k = K;
 }
 
@@ -17,7 +17,7 @@ Nodo* Grilla::createNode(uchar* palabra){
 
   nuevo->key = copyString(palabra);
 
-  nuevo->netx = nullptr;
+  nuevo->next = nullptr;
   nuevo->prev = nullptr;
   nuevo->down = nullptr;
 
@@ -88,7 +88,7 @@ bool Grilla::remove(uchar* palabra){
     base = base->down;
   //buscar la palbra en el nivel base (recorrido lineal)
   Nodo* p = base;
-  while(p != nullptr && commpare(p->key, palabra) 1= 0){
+  while(p != nullptr && compare(p->key, palabra) != 0){
     p = p->next;
   }
   //si no se encuentra, no hay nada que eliminar 
@@ -172,12 +172,12 @@ void Grilla::printGrid(){
 
 //memoria 
 void Grilla ::deleteLevels(Nodo* l){
-  while(l != nulptr){
+  while(l != nullptr){
     Nodo* nextLevel = l->down;
     Nodo* p = l;
     while(p != nullptr){
-      Nodo* q = p->key;
-      delete[] p.>key;
+      Nodo* q = p->next;
+      delete[] p->key;
       delete p;
       p = q;
     }
@@ -190,7 +190,7 @@ int Grilla::sizeLevel(Nodo* l){
   int cont = 0;
   while(l != nullptr){
     cont++;
-    l = l->next:
+    l = l->next;
   }
   return cont;
 }
@@ -211,7 +211,7 @@ Nodo* Grilla::buildUpperLevel(Nodo* lower){
          ultimo = nuevo;
       }
       else{
-         ultimo->next nuevo;
+         ultimo->next = nuevo;
          nuevo->prev = ultimo;
          ultimo = nuevo;
       }
