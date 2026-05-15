@@ -221,3 +221,19 @@ Nodo* Grilla::buildUpperLevel(Nodo* lower){
   }
   return upper;
 }
+
+void Grilla::rebuildGrid(){
+  if(head == nullptr)
+    return;
+  Nodo* base = head;
+  while(base->down != nullptr)
+    base = base->down;
+  Nodo* nivelInferior = base;
+  levels = 1;
+  while(sizeLevel(nivelInferior) > k){
+    Nodo* superior = buildUpperLevel(nivelInferior);
+    levels++;
+    nivelInferior;
+  }
+  head = nivelInferior;
+}
