@@ -231,9 +231,8 @@ void Grilla::rebuildGrid(){
   Nodo* nivelInferior = base;
   levels = 1;
   while(sizeLevel(nivelInferior) > k){
-    Nodo* superior = buildUpperLevel(nivelInferior);
+    nivelInferior = buildUpperLevel(nivelInferior);
     levels++;
-    nivelInferior;
   }
   head = nivelInferior;
 }
