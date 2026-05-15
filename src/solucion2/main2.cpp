@@ -21,11 +21,14 @@ int main(int argc, char **argv){
   }
 
   auto start_const = high_resolution_clock::now();
-  while(file.good()){
+  while(true){
     uchar* palabra = readWord(file);
-    if(length(palabra) > 0) g.insert(palabra);
-      delete[] palabra;
-  }
+    if(palabra == nullptr) break; 
+    if(length(palabra) > 0) {
+        g.insert(palabra);
+    }
+    delete[] palabra; 
+}
   file.close();
   g.rebuildGrid(); //parte de la construcción de la estructura
   auto end_const = high_resolution_clock::now();
