@@ -117,7 +117,7 @@ bool Grilla::remove(uchar* palabra){
 
   //ahora 'head' apunta al inicio de L1
   //reconsttruimos los niveles superiores para mantener la eficiencia de búsqueda
-  rebuindGrid();
+  rebuildGrid();
 
   return true;
 }
