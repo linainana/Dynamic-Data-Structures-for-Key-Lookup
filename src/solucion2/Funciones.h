@@ -10,7 +10,7 @@ using namespace std;
 typedef unsigned char uchar;
 
 //funnciones para uchar*
-int length(uchar* s);//largo de una palabra
+int length(uchar* s); //largo de una palabra
 int compare(uchar* a, uchar* b); //compara lexicográficamente
 //retorna -1 si a<b, 0 si a==b, 1 si a>b
 uchar* copyString(uchar* s); //copia una palabra 
