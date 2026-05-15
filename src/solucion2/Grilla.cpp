@@ -121,3 +121,30 @@ bool Grilla::remove(uchar* palabra){
 
   return true;
 }
+
+void Grilla::deleteUpperLevels(){
+  if(head == nullptr) return;
+
+  //encontrar el nivel base (L1) para no borrarlo
+  Nodo* base = head;
+  while(base->down != nullptr){
+    base = base->down;
+  }
+
+  //borrar todos los niveles que estén por encima de L1
+  Nodo* nivelActual = head; 
+  while(nivelActual != base){
+    Nodo* nivelSiguiente = nivelActual->down;
+    Nodo* p = nivelActual;
+    while(p != nullptr){
+      Nodo* sig = p->next;
+      delete[] p->key; //borrar la copia de la palabra 
+      delete p; //borrar el nodo
+      p = sig;
+    }
+    nivelActual = nivelSiguiente;
+  }
+  //dejar el head apuntado al nivel base y resetear contador
+  head = base;
+  levels = 1;
+}
