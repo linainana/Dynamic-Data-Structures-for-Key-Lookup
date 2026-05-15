@@ -1,4 +1,4 @@
-#includ "Funciones.h"
+#include "Funciones.h"
 
 int length(uchar* s){
   int i = 0;
@@ -16,9 +16,17 @@ int compare(uchar* a, uchar* b){
       return 1;
     i++;
   }
-  if(a[i] == '\0' && b[] == '\0')
+  if(a[i] == '\0' && b[i] == '\0')
     return 0;
   if(a[i] == '\0')
     return -1;
   return 1;
+}
+uchar* copyString(uchar* s){
+  int n = length(s);
+  uchar* copia = new uchar[n + 1];
+  for(int i=0; i<n; i++)
+    copia[i] = s[i];
+  copia[n] = '\0';
+  return copia;
 }
