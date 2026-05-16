@@ -167,6 +167,8 @@ int memoria_usada(arreglo_dinamico& arr) {
 }
 
 int main(){
+    cout << fixed;
+    cout.precision(10); //muestra los numeros con 10 cifras después del punto decimal
     srand(50);
 
     arreglo_dinamico arreglito;
