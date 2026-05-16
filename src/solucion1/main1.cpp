@@ -138,7 +138,7 @@ void limpiar_linea(string& linea) {
         linea.erase(linea.begin());
 }
 
-void random(uchar** arreglo, int n) {
+void desordenar_d2(uchar** arreglo, int n) {
     for (int i = n - 1; i > 0; i--) {
         int j = rand() % (i + 1);
         uchar* tmp = arreglo[i];
@@ -251,10 +251,7 @@ int main(){
     archivo_d2.close();
         
     tiempo_total = (double)(fin - inicio)/CLOCKS_PER_SEC;
-    cout << "Encontradas: " << encontradas << endl;
-    cout << "Tiempo total busqueda: " << tiempo_total << " seg." << endl;
-        
-
+    
     int n_busquedas;
     if (total_d2 < 10000){
         n_busquedas = total_d2;
@@ -287,7 +284,7 @@ int main(){
         for (int j = 0; j <= largo; j++) copia[j] = d2_tamano[i][j];
         para_insertar[i] = copia;
     }
-    random(para_insertar, n_insertar);
+    desordenar_d2(para_insertar, n_insertar);
 
     cout << "\nInsertando " << n_insertar << " palabras de D2 (desordenadas)..." << endl;
     inicio = clock();
@@ -316,7 +313,7 @@ int main(){
         for (int j = 0; j <= largo; j++) copia[j] = d2_tamano[inicio_ultimas + i][j];
         para_eliminar[i] = copia;
     }
-    random(para_eliminar, n_eliminar);
+    desordenar_d2(para_eliminar, n_eliminar);
 
     cout << "Eliminando " << n_eliminar << " palabras de D2 (desordenadas)..." << endl;
     int eliminaciones_exitosas = 0;
