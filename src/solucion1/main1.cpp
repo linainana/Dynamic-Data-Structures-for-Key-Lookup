@@ -167,7 +167,7 @@ int memoria_usada(arreglo_dinamico& arr) {
 }
 
 int main(){
-    srand(42);
+    srand(50);
 
     arreglo_dinamico arreglito;
     arreglito.capacidad = 100;
@@ -271,7 +271,7 @@ int main(){
     cout << "Tiempo total busqueda: " << tiempo_busqueda << " seg." << endl;
     cout << "Tiempo promedio por busqueda: " << tiempo_busqueda / n_busquedas << " seg." << endl;
 
-    // ── Insertar primeras 5000 de D2 ───────────
+    // inserta primeras 5000 de D2
     int n_insertar;
     if (total_d2 < 5000) n_insertar = total_d2;
     else n_insertar = 5000;
@@ -298,7 +298,7 @@ int main(){
     cout << "Tiempo total insercion D2: " << tiempo_insercion << " seg." << endl;
     cout << "Palabras tras insercion: " << arreglito.tamano << endl;
 
-    //Eliminar ultimas 5000 de D2
+    //Elimina ultimas 5000 de D2
     int n_eliminar;
     if (total_d2 < 5000) n_eliminar = total_d2;
     else n_eliminar = 5000;
