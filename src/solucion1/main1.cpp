@@ -1,9 +1,11 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <ctime>
+#include <chrono>
+#include <cstdlib>
 
 using namespace std;
+using namespace std::chrono;
 
 typedef unsigned char uchar;
 
@@ -148,10 +150,8 @@ void desordenar_d2(uchar** arreglo, int n) {
 }
 
 int memoria_usada(arreglo_dinamico& arr) {
-    //cada puntero ocupa 8 bytes
     int mem = arr.capacidad * 8;
 
-    // cada palabra: largo + 1 bytes
     for (int i = 0; i < arr.tamano; i++) {
         int largo = 0;
         while (arr.p[i][largo] != '\0') largo++;
@@ -166,15 +166,20 @@ int memoria_usada(arreglo_dinamico& arr) {
     return mem;
 }
 
-int main(){
+int main(int argc, char **argv){
+    if(argc != 4){
+        cout << "Modo de uso: ./arreglo_dinamico ../../data/d1.txt ../../data/d2.txt overhead" << endl;
+        return 0;
+    }
+
     cout << fixed;
     cout.precision(10); //muestra los numeros con 10 cifras después del punto decimal
-    srand(50);
+    srand(42);
 
     arreglo_dinamico arreglito;
     arreglito.capacidad = 100;
     arreglito.tamano = 0;
-    arreglito.overhead = 0.5;
+    arreglito.overhead = atof(argv[3]); 
     arreglito.p = new uchar*[arreglito.capacidad];
 
     for(int i = 0; i < 256; i++){
@@ -182,102 +187,88 @@ int main(){
     }
 
     string linea;
-    clock_t inicio, fin;
-    double tiempo_total;
-
+    //medicion de construccion D1
     
-    ifstream archivo_d1("D1.txt");
+    ifstream archivo_d1(argv[1]); 
 
     if (!archivo_d1.is_open()){
-        cout << "ERR0R! No se encontró D1.txt" << endl;
-    } else{
-        cout<< "Cargando..."<< endl;
+        cout << "No se pudo abrir el archivo D1" << endl;
+        return 0;
+    }
+    
+    cout << "Cargando archivo d1... " << endl;
 
-        inicio = clock();
+    auto start_const = high_resolution_clock::now();
 
-        while(getline(archivo_d1, linea)){
-            limpiar_linea(linea);
-            if (linea.empty()) continue;
+    while(getline(archivo_d1, linea)){
+        limpiar_linea(linea);
+        if (linea.empty()) continue;
 
-            int largo = linea.length();
-            uchar* nueva = new uchar[largo + 1];
-            for (int i = 0; i < largo; i++) {
-                nueva[i] = (uchar)linea[i];
-            }
-            nueva[largo] = '\0';
-
-            insertar(arreglito, nueva);
+        int largo = linea.length();
+        uchar* nueva = new uchar[largo + 1];
+        for (int i = 0; i < largo; i++) {
+            nueva[i] = (uchar)linea[i];
         }
-        
-        archivo_d1.close();
-        fin = clock();
+        nueva[largo] = '\0';
 
-        actualizar_posiciones(arreglito);
-        
-
-        tiempo_total = (double)(fin - inicio) / CLOCKS_PER_SEC;
-        cout << "Total palabras: " << arreglito.tamano << endl;
-        cout << "Tiempo de insercion: " << tiempo_total << " segundos." << endl;
-        cout << "Memoria usada: " << memoria_usada(arreglito) << " bytes." << endl;
-
+        insertar(arreglito, nueva);
     }
+    archivo_d1.close();
+    actualizar_posiciones(arreglito);
+    
+    auto end_const = high_resolution_clock::now();
+    duration<double> t_const = end_const - start_const;
 
-    ifstream archivo_d2("D2.txt");
+    cout << "Total palabras cargadas en D1: " << arreglito.tamano << endl;
+    cout << "Tiempo de construccion inicial (D1): " << t_const.count() << " segundos." << endl;
+    cout << "Memoria usada: " << memoria_usada(arreglito) << " bytes." << endl;
 
+   
+    //cargar d2
+    ifstream archivo_d2(argv[2]); 
     if(!archivo_d2.is_open()){
-        cout << "ERROR! No se encontro D2.txt" << endl;
+        cout << "No se pudo abrir el archivo D2" << endl;
+        return 0;
     }
+
     uchar* d2_tamano[10000];
     int total_d2 = 0;
 
-    int encontradas = 0;
-    while(getline(archivo_d2, linea)){
+    while(getline(archivo_d2, linea) && total_d2 < 10000){
         limpiar_linea(linea);
         if(linea.empty()) continue;
 
         int largo = linea.length();
-
-        uchar* palabra_buscar =
-            new uchar[largo + 1];
-
+        uchar* palabra_buscar = new uchar[largo + 1];
         for(int i = 0; i < largo; i++){
-            palabra_buscar[i] =
-                (uchar)linea[i];
-            }
-
+            palabra_buscar[i] = (uchar)linea[i];
+        }
         palabra_buscar[largo] = '\0';
 
         d2_tamano[total_d2] = palabra_buscar;
-            total_d2++;
+        total_d2++;
     }
     archivo_d2.close();
-        
-    tiempo_total = (double)(fin - inicio)/CLOCKS_PER_SEC;
-    
-    int n_busquedas;
-    if (total_d2 < 10000){
-        n_busquedas = total_d2;
-    }
-    else n_busquedas = 10000;
 
-    cout << "Buscando " << n_busquedas << " palabras de D2..." << endl;
+    desordenar_d2(d2_tamano, total_d2);
 
-    inicio = clock();
-    for (int i = 0; i < n_busquedas; i++) {
+    //búsqueda masiva
+    int encontradas = 0;
+    cout << "Buscando " << total_d2 << " palabras de d2 desordenadas..." << endl;
+
+    auto start_search = high_resolution_clock::now();
+    for (int i = 0; i < total_d2; i++) {
         if (busqueda_binaria(arreglito, d2_tamano[i]) != -1) encontradas++;
     }
-    fin = clock();
+    auto end_search = high_resolution_clock::now();
+    duration<double> t_search = end_search - start_search;
 
-    double tiempo_busqueda = (double)(fin - inicio) / CLOCKS_PER_SEC;
-    cout << "Encontradas: " << encontradas << " / " << n_busquedas << endl;
-    cout << "Tiempo total busqueda: " << tiempo_busqueda << " seg." << endl;
-    cout << "Tiempo promedio por busqueda: " << tiempo_busqueda / n_busquedas << " seg." << endl;
+    cout << "Palabras encontradas exitosamente: " << encontradas << " de " << total_d2 << endl;
+    cout << "Tiempo total de busqueda: " << t_search.count() << " segundos." << endl;
+    cout << "Tiempo promedio por palabra: " << t_search.count() / total_d2 << " segundos." << endl;
 
-    // inserta primeras 5000 de D2
-    int n_insertar;
-    if (total_d2 < 5000) n_insertar = total_d2;
-    else n_insertar = 5000;
-
+    //inserción masiva
+    int n_insertar = (total_d2 < 5000) ? total_d2 : 5000;
     uchar* para_insertar[5000];
     for (int i = 0; i < n_insertar; i++) {
         int largo = 0;
@@ -288,23 +279,21 @@ int main(){
     }
     desordenar_d2(para_insertar, n_insertar);
 
-    cout << "\nInsertando " << n_insertar << " palabras de D2 (desordenadas)..." << endl;
-    inicio = clock();
+    cout << "Insertando " << n_insertar << " palabras desordenadas..." << endl;
+    
+    auto start_insert = high_resolution_clock::now();
     for (int i = 0; i < n_insertar; i++) {
         insertar(arreglito, para_insertar[i]);
     }
-    fin = clock();
     actualizar_posiciones(arreglito);
+    auto end_insert = high_resolution_clock::now();
+    duration<double> t_insert = end_insert - start_insert;
 
-    double tiempo_insercion = (double)(fin - inicio) / CLOCKS_PER_SEC;
-    cout << "Tiempo total insercion D2: " << tiempo_insercion << " seg." << endl;
-    cout << "Palabras tras insercion: " << arreglito.tamano << endl;
+    cout << "Tiempo total de insercion: " << t_insert.count() << " segundos." << endl;
+    cout << "Palabras totales tras insercion: " << arreglito.tamano << endl;
 
-    //Elimina ultimas 5000 de D2
-    int n_eliminar;
-    if (total_d2 < 5000) n_eliminar = total_d2;
-    else n_eliminar = 5000;
-
+    //eliminación masiva
+    int n_eliminar = (total_d2 < 5000) ? total_d2 : 5000;
     int inicio_ultimas = total_d2 - n_eliminar;
 
     uchar* para_eliminar[5000];
@@ -317,59 +306,26 @@ int main(){
     }
     desordenar_d2(para_eliminar, n_eliminar);
 
-    cout << "Eliminando " << n_eliminar << " palabras de D2 (desordenadas)..." << endl;
+    cout << "Eliminando " << n_eliminar << " palabras desordenadas..." << endl;
+    
     int eliminaciones_exitosas = 0;
-    inicio = clock();
+    auto start_remove = high_resolution_clock::now();
     for (int i = 0; i < n_eliminar; i++) {
         if (eliminar(arreglito, para_eliminar[i])) eliminaciones_exitosas++;
     }
-    fin = clock();
+    auto end_remove = high_resolution_clock::now();
+    duration<double> t_remove = end_remove - start_remove;
 
-    double tiempo_eliminacion = (double)(fin - inicio) / CLOCKS_PER_SEC;
     cout << "Eliminaciones exitosas: " << eliminaciones_exitosas << " / " << n_eliminar << endl;
-    cout << "Tiempo total eliminacion: " << tiempo_eliminacion << " seg." << endl;
-    cout << "Palabras tras eliminacion: " << arreglito.tamano << endl;
+    cout << "Tiempo total de eliminacion: " << t_remove.count() << " segundos." << endl;
+    cout << "Palabras totales tras eliminacion: " << arreglito.tamano << endl;
 
-    // liberar copias temporales
-    for (int i = 0; i < n_eliminar; i++){
-        delete[] para_eliminar[i];
-    }
-    for (int i = 0; i < total_d2; i++) {
-        delete[] d2_tamano[i];
-    }
-
-    // busqueda usuario
-    string palabra_usuario;
-    cout << "Escribe una palabra para buscar (o 'salir'): ";
-
-    while (cin >> palabra_usuario && palabra_usuario != "salir") {
-        int n = palabra_usuario.length();
-        uchar* palabra_buscar = new uchar[n + 1];
-        for (int i = 0; i < n; i++){
-            palabra_buscar[i] = (uchar)palabra_usuario[i];
-        }
-        palabra_buscar[n] = '\0';
-
-        clock_t t_ini = clock();
-        int r = busqueda_binaria(arreglito, palabra_buscar);
-        clock_t t_fin = clock();
-
-        if (r != -1)
-            cout << "EXITO! Encontrada en indice: " << r << " -> " << arreglito.p[r] << endl;
-        else
-            cout << "No existe en el diccionario." << endl;
-
-        cout << "Tiempo CPU: " << (double)(t_fin - t_ini) / CLOCKS_PER_SEC << " seg." << endl;
-
-        delete[] palabra_buscar;
-        cout << "Busca otra o escribe 'salir': ";
-    }
-
-    for (int i = 0; i < arreglito.tamano; i++){
-        delete[] arreglito.p[i];
-    }
+    //liberación de memoria
+    for (int i = 0; i < n_eliminar; i++) delete[] para_eliminar[i];
+    for (int i = 0; i < total_d2; i++) delete[] d2_tamano[i];
+    for (int i = 0; i < arreglito.tamano; i++) delete[] arreglito.p[i];
     delete[] arreglito.p;
 
-    cout << "Memoria liberada. Adios!" << endl;
+    cout << "\nMemoria RAM liberada correctamente. ¡Prueba de Arreglo Finalizada!" << endl;
     return 0;
 }
