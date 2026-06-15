@@ -1,11 +1,14 @@
 CC=g++
 CFLAGS=-Wall -std=c++17 -O3
-BINS=grilla main2.o Grilla.o Funciones.o
 
-all: clean grilla
+TARGET = grilla
 
-grilla: main2.o Grilla.o Funciones.o
-	$(CC) $(CFLAGS) -o grilla main2.o Grilla.o Funciones.o
+OBJS = main2.o Grilla.o Funciones.o
+all: clean $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+
 
 main2.o: main2.cpp Grilla.h Funciones.h
 	$(CC) $(CFLAGS) -c main2.cpp
@@ -16,7 +19,7 @@ Grilla.o: Grilla.cpp Grilla.h Funciones.h
 Funciones.o: Funciones.cpp Funciones.h
 	$(CC) $(CFLAGS) -c Funciones.cpp
 
-clean:
-	@echo " [CLN] Removing binary files :))"
-	@rm -f $(BINS)
 
+clean:
+	@echo " [CLN] Eliminando ejecutables y archivos objeto temporales..."
+	@rm -f $(TARGET) $(OBJS)
