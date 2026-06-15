@@ -17,5 +17,6 @@ uchar* copyString(uchar* s); //copia una palabra
 
 //archivos
 void cleanLine(uchar* s); //elimina salto de línea
+void desordenarPalabras(uchar** arreglo, int n);
 uchar* readWord(ifstream& file); //lee una palabra desde archivo
 #endif
