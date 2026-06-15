@@ -64,3 +64,12 @@ uchar* readWord(ifstream& file){
   }
   return nullptr;
 }
+
+void desordenarPalabras(uchar** arreglo, int n) {
+    for (int i = n - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+        uchar* tmp = arreglo[i];
+        arreglo[i] = arreglo[j];
+        arreglo[j] = tmp;
+    }
+}
