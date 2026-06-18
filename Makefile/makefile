@@ -39,7 +39,7 @@ run: $(BINS)
 	@echo "CORRIENDO EXPERIMENTO 2: GRILLA"
 	./grilla $(DIR_DATA)/d1.txt $(DIR_DATA)/d2.txt 32
 	@echo "CORRIENDO EXPERIMENTO 3: ÁRBOL K-ARIO"
-	./kario $(DIR_DATA)/d1.txt $(DIR_DATA)/d2.txt
+	./kario $(DIR_DATA)/d1.txt $(DIR_DATA)/d2.txt 32
 
 #Limpieza total de binarios y archivos objeto intermedios
 clean:
