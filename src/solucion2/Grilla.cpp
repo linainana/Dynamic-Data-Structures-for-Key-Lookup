@@ -241,3 +241,26 @@ void Grilla::rebuildGrid(){
   }
   head = nivelInferior;
 }
+
+int Grilla::memoria_usada() {
+    int mem = 0;
+    Nodo* nivelActual = head;
+
+    //recorremos nivel por nivel de arriba hacia abajo
+    while (nivelActual != nullptr) {
+        Nodo* p = nivelActual;
+        while (p != nullptr) {
+            mem += 32;
+            //sumamos los caracteres de la palabra (solo si estamos en el nivel base L1)
+            if (p->key != nullptr) {
+                int largo = 0;
+                while (p->key[largo] != '\0') largo++;
+                mem += largo + 1; //+1 por el caracter nulo '\0'
+            }
+            p = p->next;
+        }
+        nivelActual = nivelActual->down;
+    }
+    mem += 16;
+    return mem;
+}
