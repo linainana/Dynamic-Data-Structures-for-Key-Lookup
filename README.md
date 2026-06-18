@@ -1,24 +1,28 @@
 # Dynamic-Data-Structures-for-Key-Lookup
 Integrantes: Isidora Llanquimán(aka Hyro404), Francisca Muñoz(aka fm437352), Catalina Provoste(aka linainana), Escarlett Vargas(aka nissydva).
 
-Este proyecto es sobre la creación y comparación de estructuras de datos para la gestión de diccionarios, el cual consiste en dos programas (Arreglo Dinámico y Grilla) operados por consola. Se tendrá acceso a cargar grandes cabtidades de palabras desde archivos, buscar palabras específicas y eliminar términos, midiendo los tiempos de ejecución de cada operación con el fin de evaluar y controlar la eficiencia en la búsqueda y almacenamiento de datos.
+Este proyecto consiste en el diseño, implementación y comparación experimental de tres estructuras de datos dinámicas para la gestión eficiente de diccionarios de palabras: un arreglo dinámico ordenado, una grilla multinivel y un árbol k-ario. Cada estructura permite realizar operaciones de inserción, búsqueda y eliminación de palabras almacenadas en memoria dinámica. El objetivo principal es analizar y comparar el desempeño de las distintas soluciones en términos de tiempo de ejecución y consumo de memoria RAM.
 
-Indicadores en la interfaz (consola):
-Tiempos de construcción y carga: Muestra el tiempo total que tarda la estructura en leer los archivos de texto, alojar las palabras en memoria y construir la estructura (como los niveles de la grilla). Se muestra al inicio del programa con el fin de conocer el costo inicial de preparación de los datos.
-Tiempos de búsqueda y eliminación: Muestra el tiempo de CPU (o en segundos) que tarda el programa en encontrar o borrar una palabra específica ingresada por el usuario. Se actualiza cada vez que el usuario realiza una consulta, con el fin de evaluar la velocidad de las estructuras.
-Estadísticas de estado: Muestra cuántas palabras se eliminaron de manera exitosa en comparación a las solicitadas, y el número total de palabras restantes dentro de la estructura actual. 
-(De esta manera el usuario, conociendo estos datos, puede determinar si el Arreglo Dinámico o la Grilla multinivel es la mejor opción dependiendo de la cantidad del flujo de palabras a procesar.)
+Para la experimentación se utilizan dos archivos de texto:
+D1.txt: contiene las palabras utilizadas para construir inicialmente la estructura.
+D2.txt: contiene las palabras utilizadas para las pruebas masivas de búsqueda, inserción y eliminación.
 
-Los datos de entrada se leerán desde archivos locales de texto plano con extensión .txt (como d1.txt y d2.txt), los que se cargarán en la memoria dinámica al iniciar el sistema para que las estructuras de datos puedan interactuar con ellos en tiempo real.
-
+Las mediciones realizadas consideran: tiempo de construcción inicial, tiempo total y promedio de búsqueda, tiempo total de inserción, tiempo total de eliminación, consumo de memoria RAM y cantidad de operaciones exitosas.
 
 Para poder acceder al archivo principal:
 ```bash
 # bash
-make # compila de forma automática tanto 'arreglo_dinamico' como 'grilla'
+make # Compila de forma automática las tres soluciones
 
-# Para ejecutar el Arreglo Dinámico:
-./arreglo_dinamico
+# Para ejecutar las tres soluciones con valores de k preestablecidos;
+make run # k=32 para arreglo y grilla, y k=26 fijo para el árbol k-ario
 
-# Para ejecutar la Grilla (ejemplo con diccionario d1.txt y k=5):
-./grilla d1.txt 5
+# Para ejecutar las soluciones independientemente con distintos valores de k:
+# Para arreglo dinámico (ejemplo k=16):
+./arreglo_dinamico ../data/d1.txt ../data/d2.txt 16
+
+# Para grilla multinivel (ejemplo k=16):
+./grilla ../data/d1.txt ../data/d2.txt 16
+
+# Para árbol k-ario (trabaja con un alfabeto fijo de 26 letras, por lo que no requiere recibir un valor de k como parámetro)
+./kario ../data/d1.txt ../data/d2.txt
