@@ -46,5 +46,6 @@ public:
    Nodo* buildUpperLevel(Nodo* lower);
    void rebuildGrid();
    void deleteUpperLevels(); 
+   int memoria_usada();
 };
 #endif
