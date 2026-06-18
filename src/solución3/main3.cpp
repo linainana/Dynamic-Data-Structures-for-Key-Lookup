@@ -10,6 +10,7 @@ using namespace std::chrono;
 typedef unsigned char uchar;
 
 int total_nodos_creados = 0;
+long long total_bytes_palabras = 0; //cuenta el peso exacto de los caracteres en RAM
 
 struct NodoKario {
     uchar** claves;       
@@ -44,6 +45,7 @@ int obtenerLongitud(const string& str) {
 
 uchar* duplicarCadena(const string& str) {
     int len = str.length();
+    total_bytes_palabras += (len + 1);
     uchar* destino = new uchar[len + 1];
     for (int i = 0; i < len; i++) destino[i] = (uchar)str[i];
     destino[len] = '\0';
@@ -87,22 +89,22 @@ bool buscarAux(NodoKario* nodo, const uchar* clave) {
 }
 
 void dividirHijo(NodoKario* padre, int i, NodoKario* hijo, int K) {
-    //definimos el punto medio exacto de la partición
+    // Definimos el punto medio exacto de la partición
     int t = (K + 1) / 2; 
     
-    //el nuevo nodo (hermano derecho) recibirá la segunda mitad de los elementos
+    // El nuevo nodo (hermano derecho) recibirá la segunda mitad de los elementos
     NodoKario* nuevo = new NodoKario(K, hijo->esHoja);
     
-    //calculamos cuántas claves le quedan al nuevo nodo hermano
+    // Calculamos cuántas claves le quedan al nuevo nodo hermano
     nuevo->numClaves = K - t;
     
-    //pasar la segunda mitad de las claves al nuevo nodo
+    // 1. Pasar la segunda mitad de las claves al nuevo nodo
     for (int j = 0; j < nuevo->numClaves; j++) {
         nuevo->claves[j] = hijo->claves[j + t];
         hijo->claves[j + t] = nullptr;
     }
     
-    //si no es hoja, pasar también la segunda mitad de los hijos correspondientes
+    // 2. Si no es hoja, pasar también la segunda mitad de los hijos correspondientes
     if (!hijo->esHoja) {
         for (int j = 0; j <= nuevo->numClaves; j++) {
             nuevo->hijos[j] = hijo->hijos[j + t];
@@ -110,21 +112,21 @@ void dividirHijo(NodoKario* padre, int i, NodoKario* hijo, int K) {
         }
     }
     
-    //ajustamos el número de claves que se quedan en el hijo original
+    // Ajustamos el número de claves que se quedan en el hijo original
     hijo->numClaves = t - 1;
 
-    //hacer espacio en el nodo padre para el nuevo hijo
+    // 3. Hacer espacio en el nodo padre para el nuevo hijo
     for (int j = padre->numClaves; j >= i + 1; j--) {
         padre->hijos[j + 1] = padre->hijos[j];
     }
     padre->hijos[i + 1] = nuevo;
 
-    //hacer espacio en el nodo padre para la clave que sube desde el medio
+    // 4. Hacer espacio en el nodo padre para la clave que sube desde el medio
     for (int j = padre->numClaves - 1; j >= i; j--) {
         padre->claves[j + 1] = padre->claves[j];
     }
     
-    //la clave del medio (índice t-1) sube formalmente al padre
+    // La clave del medio (índice t-1) sube formalmente al padre
     padre->claves[i] = hijo->claves[t - 1];
     hijo->claves[t - 1] = nullptr;
     
@@ -191,9 +193,14 @@ void eliminarAux(NodoKario* nodo, const uchar* clave) {
 
 //función de cálculo de memoria dinámica adaptada al tamaño del parámetro K actual
 int calcular_memoria_arbol_dinamico(int total_nodos, int K) {
+    //esqueleto del árbol
     int mem_por_nodo = (K * sizeof(uchar*)) + ((K + 1) * sizeof(NodoKario*)) + sizeof(int) + sizeof(bool) + sizeof(int);
     int mem = total_nodos * mem_por_nodo;
     mem += sizeof(NodoKario*); //puntero raíz
+    
+    //sumamos el peso real de las palabras alojadas
+    mem += total_bytes_palabras; 
+    
     return mem;
 }
 
