@@ -35,7 +35,7 @@ kario: $(DIR_SOL3)/main3.cpp
 
 run: $(BINS)
 	@echo "CORRIENDO EXPERIMENTO 1: ARREGLO DINÁMICO"
-	./arreglo_dinamico $(DIR_DATA)/d1.txt $(DIR_DATA)/d2.txt 0.5
+	./arreglo_dinamico $(DIR_DATA)/d1.txt $(DIR_DATA)/d2.txt 32
 	@echo "CORRIENDO EXPERIMENTO 2: GRILLA"
 	./grilla $(DIR_DATA)/d1.txt $(DIR_DATA)/d2.txt 32
 	@echo "CORRIENDO EXPERIMENTO 3: ÁRBOL K-ARIO"
