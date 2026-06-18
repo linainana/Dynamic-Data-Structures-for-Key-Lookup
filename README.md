@@ -9,13 +9,15 @@ Para la experimentación se utilizan dos archivos de texto:
 
 Las mediciones realizadas consideran: tiempo de construcción inicial, tiempo total y promedio de búsqueda, tiempo total de inserción, tiempo total de eliminación, consumo de memoria RAM y cantidad de operaciones exitosas.
 
+El parámetro k corresponde al factor de organización utilizado por las estructuras. Su valor influye directamente en el rendimiento y consumo de memoria de las implementaciones, por lo que se evaluaron distintos valores durante la experimentación.
+
 Para poder acceder al archivo principal:
 ```bash
 # bash
 make # Compila de forma automática las tres soluciones
 
-# Para ejecutar las tres soluciones con valores de k preestablecidos;
-make run # k=32 para arreglo, grilla y árbol
+# Ejecuta automáticamente los experimentos con k=32
+make run 
 
 # Para ejecutar las soluciones independientemente con distintos valores de k:
 # Para arreglo dinámico (ejemplo k=16):
