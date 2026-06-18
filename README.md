@@ -15,7 +15,7 @@ Para poder acceder al archivo principal:
 make # Compila de forma automática las tres soluciones
 
 # Para ejecutar las tres soluciones con valores de k preestablecidos;
-make run # k=32 para arreglo y grilla, y k=26 fijo para el árbol k-ario
+make run # k=32 para arreglo, grilla y árbol
 
 # Para ejecutar las soluciones independientemente con distintos valores de k:
 # Para arreglo dinámico (ejemplo k=16):
@@ -24,5 +24,5 @@ make run # k=32 para arreglo y grilla, y k=26 fijo para el árbol k-ario
 # Para grilla multinivel (ejemplo k=16):
 ./grilla ../data/d1.txt ../data/d2.txt 16
 
-# Para árbol k-ario (trabaja con un alfabeto fijo de 26 letras, por lo que no requiere recibir un valor de k como parámetro)
-./kario ../data/d1.txt ../data/d2.txt
+# Para árbol k-ario (ejemplo: k=16):
+./kario ../data/d1.txt ../data/d2.txt 16
