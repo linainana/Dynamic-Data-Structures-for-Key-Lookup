@@ -1,12 +1,15 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <chrono>
-#include <cstdlib>
+#include <algorithm>
+
 using namespace std;
 using namespace std::chrono;
 
 typedef unsigned char uchar;
 
+int total_nodos_creados = 0;
 
 struct NodoKario {
     uchar** claves;       
@@ -20,13 +23,13 @@ struct NodoKario {
         hijos = new NodoKario*[K + 1];
         for (int i = 0; i < K; i++) claves[i] = nullptr;
         for (int i = 0; i <= K; i++) hijos[i] = nullptr;
+        total_nodos_creados++; 
     }
 
     ~NodoKario() {
         for (int i = 0; i < K; i++) {
             if (claves[i] != nullptr) {
                 delete[] claves[i];
-                claves[i] = nullptr;
             }
         }
         delete[] claves;
@@ -34,16 +37,15 @@ struct NodoKario {
     }
 };
 
-int obtenerLongitud(const uchar* str) {
-    int len = 0;
-    while (str[len] != '\0') len++;
-    return len;
+//conversión y comparación lexicográfica 
+int obtenerLongitud(const string& str) {
+    return str.length();
 }
 
-uchar* duplicarCadena(const uchar* origen) {
-    int len = obtenerLongitud(origen);
+uchar* duplicarCadena(const string& str) {
+    int len = str.length();
     uchar* destino = new uchar[len + 1];
-    for (int i = 0; i < len; i++) destino[i] = origen[i];
+    for (int i = 0; i < len; i++) destino[i] = (uchar)str[i];
     destino[len] = '\0';
     return destino;
 }
@@ -59,270 +61,262 @@ int comparar(const uchar* s1, const uchar* s2) {
     return (s1[i] == '\0') ? -1 : 1;
 }
 
+//limpieza recursiva profunda recorriendo el arreglo completo hasta K
 void limpiarArbol(NodoKario* nodo) {
     if (nodo == nullptr) return;
     if (!nodo->esHoja) {
-        for (int i = 0; i <= nodo->numClaves; i++) {
+        for (int i = 0; i <= nodo->K; i++) { 
             limpiarArbol(nodo->hijos[i]);
         }
     }
     delete nodo;
 }
 
-class ArbolKario {
-private:
-    NodoKario* raiz;
-    int K;
+//métodos operacionales del arbol 
+bool buscarAux(NodoKario* nodo, const uchar* clave) {
+    if (nodo == nullptr) return false;
+    int i = 0;
+    while (i < nodo->numClaves && comparar(clave, nodo->claves[i]) > 0) {
+        i++;
+    }
+    if (i < nodo->numClaves && comparar(clave, nodo->claves[i]) == 0) {
+        return true; 
+    }
+    if (nodo->esHoja) return false;
+    return buscarAux(nodo->hijos[i], clave);
+}
 
-    void dividirHijo(NodoKario* padre, int i, NodoKario* hijo) {
-        int t = (K + 1) / 2; 
-        NodoKario* nuevo = new NodoKario(K, hijo->esHoja);
-        nuevo->numClaves = t - 1;
-        for (int j = 0; j < t - 1; j++) {
-            nuevo->claves[j] = hijo->claves[j + t];
-            hijo->claves[j + t] = nullptr;
+void dividirHijo(NodoKario* padre, int i, NodoKario* hijo, int K) {
+    int t = (K + 1) / 2; 
+    NodoKario* nuevo = new NodoKario(K, hijo->esHoja);
+    nuevo->numClaves = t - 1;
+    
+    for (int j = 0; j < t - 1; j++) {
+        nuevo->claves[j] = hijo->claves[j + t];
+        hijo->claves[j + t] = nullptr;
+    }
+    if (!hijo->esHoja) {
+        for (int j = 0; j < t; j++) {
+            nuevo->hijos[j] = hijo->hijos[j + t];
+            hijo->hijos[j + t] = nullptr;
         }
-        if (!hijo->esHoja) {
-            for (int j = 0; j < t; j++) {
-                nuevo->hijos[j] = hijo->hijos[j + t];
-                hijo->hijos[j + t] = nullptr;
+    }
+
+    hijo->numClaves = t - 1;
+
+    for (int j = padre->numClaves; j >= i + 1; j--) {
+        padre->hijos[j + 1] = padre->hijos[j];
+    }
+    padre->hijos[i + 1] = nuevo;
+
+    for (int j = padre->numClaves - 1; j >= i; j--) {
+        padre->claves[j + 1] = padre->claves[j];
+    }
+    padre->claves[i] = hijo->claves[t - 1];
+    hijo->claves[t - 1] = nullptr;
+    padre->numClaves++;
+}
+
+void insertarNoLleno(NodoKario* nodo, const uchar* clave, int K) {
+    int i = nodo->numClaves - 1;
+    if (nodo->esHoja) {
+        while (i >= 0 && comparar(clave, nodo->claves[i]) < 0) {
+            nodo->claves[i + 1] = nodo->claves[i];
+            i--;
+        }
+        nodo->claves[i + 1] = duplicarCadena((const char*)clave);
+        nodo->numClaves++;
+    } else {
+        while (i >= 0 && comparar(clave, nodo->claves[i]) < 0) {
+            i--;
+        }
+        i++;
+        if (nodo->hijos[i]->numClaves == K) {
+            dividirHijo(nodo, i, nodo->hijos[i], K);
+            if (comparar(clave, nodo->claves[i]) > 0) {
+                i++;
             }
         }
-
-        hijo->numClaves = t - 1;
-
-        for (int j = padre->numClaves; j >= i + 1; j--) {
-            padre->hijos[j + 1] = padre->hijos[j];
-        }
-        padre->hijos[i + 1] = nuevo;
-
-        for (int j = padre->numClaves - 1; j >= i; j--) {
-            padre->claves[j + 1] = padre->claves[j];
-        }
-        padre->claves[i] = hijo->claves[t - 1];
-        hijo->claves[t - 1] = nullptr;
-        padre->numClaves++;
-    }
-
-    void insertarNoLleno(NodoKario* nodo, const uchar* clave) {
-        int i = nodo->numClaves - 1;
-        if (nodo->esHoja) {
-            while (i >= 0 && comparar(clave, nodo->claves[i]) < 0) {
-                nodo->claves[i + 1] = nodo->claves[i];
-                i--;
-            }
-            nodo->claves[i + 1] = duplicarCadena(clave);
-            nodo->numClaves++;
-        } else {
-            while (i >= 0 && comparar(clave, nodo->claves[i]) < 0) {
-                i--;
-            }
-            i++;
-            if (nodo->hijos[i]->numClaves == K) {
-                dividirHijo(nodo, i, nodo->hijos[i]);
-                if (comparar(clave, nodo->claves[i]) > 0) {
-                    i++;
-                }
-            }
-            insertarNoLleno(nodo->hijos[i], clave);
-        }
-    }
-
-    bool buscarAux(NodoKario* nodo, const uchar* clave) {
-        if (nodo == nullptr) return false;
-        int i = 0;
-        while (i < nodo->numClaves && comparar(clave, nodo->claves[i]) > 0) {
-            i++;
-        }
-        if (i < nodo->numClaves && comparar(clave, nodo->claves[i]) == 0) {
-            return true; 
-        }
-        if (nodo->esHoja) return false;
-        return buscarAux(nodo->hijos[i], clave);
-    }
-
-    void eliminarAux(NodoKario* nodo, const uchar* clave) {
-        int i = 0;
-        while (i < nodo->numClaves && comparar(clave, nodo->claves[i]) > 0) {
-            i++;
-        }
-        if (i < nodo->numClaves && comparar(clave, nodo->claves[i]) == 0) {
-            if (nodo->esHoja) {
-                delete[] nodo->claves[i];
-                for (int j = i; j < nodo->numClaves - 1; j++) {
-                    nodo->claves[j] = nodo->claves[j + 1];
-                }
-                nodo->claves[nodo->numClaves - 1] = nullptr;
-                nodo->numClaves--;
-            } else {
-                NodoKario* predNodo = nodo->hijos[i];
-                while (!predNodo->esHoja) {
-                    predNodo = predNodo->hijos[predNodo->numClaves];
-                }
-                uchar* predClaveCopia = duplicarCadena(predNodo->claves[predNodo->numClaves - 1]);
-                eliminarAux(nodo->hijos[i], predClaveCopia);
-                delete[] nodo->claves[i];
-                nodo->claves[i] = predClaveCopia;
-            }
-        } else {
-            if (nodo->esHoja) return; 
-            eliminarAux(nodo->hijos[i], clave);
-        }
-    }
-
-public:
-    ArbolKario(int k) : K(k) {
-        raiz = new NodoKario(K, true);
-    }
-    ~ArbolKario() {
-        limpiarArbol(raiz);
-    }
-
-    void insertar(const uchar* clave) {
-        //Evitar inserción de duplicados que rompan la estructura interna
-        if (buscar(clave)) return; 
-        if (raiz->numClaves == K) {
-            NodoKario* nuevaRaiz = new NodoKario(K, false);
-            nuevaRaiz->hijos[0] = raiz;
-            dividirHijo(nuevaRaiz, 0, raiz);
-            raiz = nuevaRaiz;
-        }
-        insertarNoLleno(raiz, clave);
-    }
-    bool buscar(const uchar* clave) {
-        return buscarAux(raiz, clave);
-    }
-    void eliminar(const uchar* clave) {
-        eliminarAux(raiz, clave);
-    }
-};
-
-void desordenarArreglo(uchar** arr, int tamano) {
-    for (int i = tamano - 1; i > 0; i--) {
-        int j = rand() % (i + 1);
-        uchar* temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
+        insertarNoLleno(nodo->hijos[i], clave, K);
     }
 }
 
-int main(int argc, char** argv) {
-    if (argc != 4) {
-        cout << "Uso correcto: ./kario data/d1.txt data/d2.txt <Valor_K>" << endl;
-        return 1;
+void eliminarAux(NodoKario* nodo, const uchar* clave) {
+    if (nodo == nullptr) return;
+    
+    int i = 0;
+    while (i < nodo->numClaves && comparar(clave, nodo->claves[i]) > 0) {
+        i++;
     }
+    
+    //si encontramos la clave en este nodo
+    if (i < nodo->numClaves && comparar(clave, nodo->claves[i]) == 0) {
+        if (nodo->esHoja) {
+            //en las hojas es seguro borrar y desplazar porque no hay hijos abajo
+            if (nodo->claves[i] != nullptr) {
+                delete[] nodo->claves[i];
+            }
+            for (int j = i; j < nodo->numClaves - 1; j++) {
+                nodo->claves[j] = nodo->claves[j + 1];
+            }
+            nodo->claves[nodo->numClaves - 1] = nullptr;
+            nodo->numClaves--;
+        } else {
+            //invalidamos la clave sin destruir el puntero del hijo estructural
+            if (nodo->claves[i] != nullptr) {
+                delete[] nodo->claves[i];
+                nodo->claves[i] = duplicarCadena("[eliminado]"); //dejamos una "marca"
+            }
+        }
+    } else {
+        //si no está aquí y no es hoja
+        if (nodo->esHoja || nodo->hijos[i] == nullptr) return; 
+        eliminarAux(nodo->hijos[i], clave);
+    }
+}
+
+//función de cálculo de memoria dinámica adaptada al tamaño del parámetro K actual
+int calcular_memoria_arbol_dinamico(int total_nodos, int K) {
+    int mem_por_nodo = (K * sizeof(uchar*)) + ((K + 1) * sizeof(NodoKario*)) + sizeof(int) + sizeof(bool) + sizeof(int);
+    int mem = total_nodos * mem_por_nodo;
+    mem += sizeof(NodoKario*); //puntero raíz
+    return mem;
+}
+
+void desordenarPalabras(string arreglo[], int tamano) {
+    for (int i = tamano - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+        swap(arreglo[i], arreglo[j]);
+    }
+}
+
+int main(int argc, char **argv) {
+    if (argc != 4) {
+        cout << "Modo de uso: ./kario data/d1.txt data/d2.txt <Valor_K>" << endl;
+        return 0;
+    }
+
     srand(42); 
     int K_param = atoi(argv[3]);
-    cout << "=== INICIANDO EXPERIMENTO CON ÁRBOL K-ARIO (K = " << K_param << ") ===" << endl << endl;
-    ArbolKario* arbol = new ArbolKario(K_param);
 
-    //1.Construcción del arbol con D1
-    ifstream fileD1(argv[1]);
-    if (!fileD1.is_open()) {
-        cout << "[ERROR] No se pudo abrir D1: " << argv[1] << endl;
-        delete arbol;
-        return 1;
+    NodoKario* raiz = new NodoKario(K_param, true);
+    total_nodos_creados = 1;
+
+    //medición de construcción inicial (D1)
+    ifstream filed1(argv[1]);
+    if (!filed1.is_open()) {
+        cout << "No se pudo abrir el archivo D1" << endl;
+        delete raiz;
+        return 0;
     }
 
-    string buffer;
+    string palabra;
     auto start_const = high_resolution_clock::now();
-    while (fileD1 >> buffer) {
-        if (!buffer.empty()) {
-            arbol->insertar((const uchar*)buffer.c_str());
+    while (filed1 >> palabra) {
+        if (!palabra.empty()) {
+            uchar* temp_clave = duplicarCadena(palabra);
+            if (!buscarAux(raiz, temp_clave)) {
+                if (raiz->numClaves == K_param) {
+                    NodoKario* nuevaRaiz = new NodoKario(K_param, false);
+                    nuevaRaiz->hijos[0] = raiz;
+                    dividirHijo(nuevaRaiz, 0, raiz, K_param);
+                    raiz = nuevaRaiz;
+                }
+                insertarNoLleno(raiz, temp_clave, K_param);
+            }
+            delete[] temp_clave;
         }
     }
-    fileD1.close();
+    filed1.close();
     auto end_const = high_resolution_clock::now();
     duration<double> t_const = end_const - start_const;
-    cout << "1. Tiempo de construccion inicial: " << t_const.count() << " segundos." << endl;
 
-    //2.Obtener total de líneas de D2
-    ifstream fileD2(argv[2]);
-    if (!fileD2.is_open()) {
-        cout << "[ERROR] No se pudo abrir D2: " << argv[2] << endl;
-        delete arbol;
-        return 1;
+    cout << "Tiempo de construcción inicial D1: " << t_const.count() << " segundos" << endl;
+    cout << "Memoria usada: " << calcular_memoria_arbol_dinamico(total_nodos_creados, K_param) << " bytes." << endl;
+
+    //carga y desorden de D2
+    ifstream filed2(argv[2]);
+    if (!filed2.is_open()) {
+        cout << "No se pudo abrir el archivo D2" << endl;
+        limpiarArbol(raiz);
+        return 0;
     }
-    int total_lineas_d2 = 0;
-    while (fileD2 >> buffer) { if (!buffer.empty()) total_lineas_d2++; }
-    fileD2.close(); // Cerramos y reabrimos para evitar fallos de puntero de archivo en Linux
 
-    //3.Carga de lotes independientes (sin solapamiento)
-    uchar* lote_busqueda[10000];
-    uchar* lote_insercion[5000];
-    uchar* lote_eliminacion[5000];
-    int c_busqueda = 0, c_insercion = 0, c_eliminacion = 0;
-    int lineas_a_ignorar_elim = total_lineas_d2 - 5000;
-    int indice_actual = 0;
+    string lote_d2[10000];
+    int total_d2 = 0;
 
-    fileD2.open(argv[2]);
-
-    while (fileD2 >> buffer) {
-        if (buffer.empty()) continue;
-        //Lote de Búsqueda: Primeras 10,000 palabras
-        if (indice_actual < 10000) {
-            lote_busqueda[c_busqueda++] = duplicarCadena((const uchar*)buffer.c_str());
+    while (total_d2 < 10000 && filed2 >> palabra) {
+        if (!palabra.empty()) {
+            lote_d2[total_d2] = palabra;
+            total_d2++;
         }
-        //Lote de Inserción: Siguientes 5,000 palabras
-        //No se solapa con el de búsqueda para evitar sesgos en la medición.
-        if (indice_actual >= 10000 && indice_actual < 15000) {
-            lote_insercion[c_insercion++] = duplicarCadena((const uchar*)buffer.c_str());
-        }
-        //Lote de Eliminación: Últimas 5,000 palabras de D2
-        if (indice_actual >= lineas_a_ignorar_elim && c_eliminacion < 5000) {
-            lote_eliminacion[c_eliminacion++] = duplicarCadena((const uchar*)buffer.c_str());
-        }
-        indice_actual++;
     }
-    fileD2.close();
+    filed2.close();
 
-    //Mezclar datos de forma independiente
-    desordenarArreglo(lote_busqueda, c_busqueda);
-    desordenarArreglo(lote_insercion, c_insercion);
-    desordenarArreglo(lote_eliminacion, c_eliminacion);
+    desordenarPalabras(lote_d2, total_d2);
 
-    //Experimentación de búsqueda masiva (10,000 palabras)
+    //medición de búsqueda masiva
     int encontradas = 0;
     auto start_search = high_resolution_clock::now();
-    for (int i = 0; i < c_busqueda; i++) {
-        if (arbol->buscar(lote_busqueda[i])) {
+    
+    for (int i = 0; i < total_d2; i++) {
+        uchar* temp_busq = duplicarCadena(lote_d2[i]);
+        if (buscarAux(raiz, temp_busq)) {
             encontradas++;
         }
+        delete[] temp_busq;
     }
     auto end_search = high_resolution_clock::now();
     duration<double> t_search = end_search - start_search;
 
-    cout << "2. Busqueda Masiva:" << endl;
-    cout << "    - Palabras exitosas: " << encontradas << " de " << c_busqueda << " buscadas." << endl;
-    cout << "    - Tiempo total: " << t_search.count() << " segundos." << endl;
+    cout << "Palabras encontradas exitosamente: " << encontradas << " de " << total_d2 << endl;
+    cout << "Tiempo total de búsqueda: " << t_search.count() << " segundos." << endl;
+    cout << "Tiempo promedio por palabra: " << (t_search.count() / total_d2) << " segundos." << endl;
 
-    //Experimentación de inserción
+    //medición de inserción masiva (5000)
+    int n_insertar = (total_d2 < 5000) ? total_d2 : 5000;
+    int inserciones_exitosas = 0;
+    
     auto start_insert = high_resolution_clock::now();
-    for (int i = 0; i < c_insercion; i++) {
-        arbol->insertar(lote_insercion[i]);
+    for (int i = 0; i < n_insertar; i++) {
+        uchar* temp_ins = duplicarCadena(lote_d2[i]);
+        if (!buscarAux(raiz, temp_ins)) {
+            if (raiz->numClaves == K_param) {
+                NodoKario* nuevaRaiz = new NodoKario(K_param, false);
+                nuevaRaiz->hijos[0] = raiz;
+                dividirHijo(nuevaRaiz, 0, raiz, K_param);
+                raiz = nuevaRaiz;
+            }
+            insertarNoLleno(raiz, temp_ins, K_param);
+            inserciones_exitosas++;
+        }
+        delete[] temp_ins;
     }
     auto end_insert = high_resolution_clock::now();
     duration<double> t_insert = end_insert - start_insert;
+
+    cout << "Inserciones nuevas realizadas: " << inserciones_exitosas << " de " << n_insertar << " intentadas." << endl;
+    cout << "Tiempo total de inserción: " << t_insert.count() << " segundos." << endl;
+
+    //medición de eliminación masiva (5000)
+    int eliminaciones_exitosas = 0;
     
-    //Experimentación eliminación
     auto start_remove = high_resolution_clock::now();
-    for (int i = 0; i < c_eliminacion; i++) {
-        arbol->eliminar(lote_eliminacion[i]);
+    for (int i = 0; i < n_insertar; i++) {
+        uchar* temp_elim = duplicarCadena(lote_d2[i]);
+        if (buscarAux(raiz, temp_elim)) {
+            eliminarAux(raiz, temp_elim);
+            eliminaciones_exitosas++; 
+        }
+        delete[] temp_elim;
     }
     auto end_remove = high_resolution_clock::now();
     duration<double> t_remove = end_remove - start_remove;
 
-    cout << "3. Inserciones y Eliminaciones Adicionales:" << endl;
-    cout << "    - Tiempo total insercion (5000 palabras netas): " << t_insert.count() << " segundos." << endl;
-    cout << "    - Tiempo total eliminacion (Ultimas 5000 de D2): " << t_remove.count() << " segundos." << endl;
+    cout << "Eliminaciones intentadas de forma masiva: " << eliminaciones_exitosas << " de " << n_insertar << endl;
+    cout << "Tiempo total de eliminación: " << t_remove.count() << " segundos." << endl;
 
-    //Limpieza final de memoria
-    for (int i = 0; i < c_busqueda; i++) delete[] lote_busqueda[i];
-    for (int i = 0; i < c_insercion; i++) delete[] lote_insercion[i];
-    for (int i = 0; i < c_eliminacion; i++) delete[] lote_eliminacion[i];
-
-    delete arbol;
+    //liberación total del árbol al cerrar el programa
+    limpiarArbol(raiz);
     return 0;
-
-} 
-
+}
