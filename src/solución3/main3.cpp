@@ -87,33 +87,47 @@ bool buscarAux(NodoKario* nodo, const uchar* clave) {
 }
 
 void dividirHijo(NodoKario* padre, int i, NodoKario* hijo, int K) {
+    //definimos el punto medio exacto de la partición
     int t = (K + 1) / 2; 
-    NodoKario* nuevo = new NodoKario(K, hijo->esHoja);
-    nuevo->numClaves = t - 1;
     
-    for (int j = 0; j < t - 1; j++) {
+    //el nuevo nodo (hermano derecho) recibirá la segunda mitad de los elementos
+    NodoKario* nuevo = new NodoKario(K, hijo->esHoja);
+    
+    //calculamos cuántas claves le quedan al nuevo nodo hermano
+    nuevo->numClaves = K - t;
+    
+    //pasar la segunda mitad de las claves al nuevo nodo
+    for (int j = 0; j < nuevo->numClaves; j++) {
         nuevo->claves[j] = hijo->claves[j + t];
         hijo->claves[j + t] = nullptr;
     }
+    
+    //si no es hoja, pasar también la segunda mitad de los hijos correspondientes
     if (!hijo->esHoja) {
-        for (int j = 0; j < t; j++) {
+        for (int j = 0; j <= nuevo->numClaves; j++) {
             nuevo->hijos[j] = hijo->hijos[j + t];
             hijo->hijos[j + t] = nullptr;
         }
     }
-
+    
+    //ajustamos el número de claves que se quedan en el hijo original
     hijo->numClaves = t - 1;
 
+    //hacer espacio en el nodo padre para el nuevo hijo
     for (int j = padre->numClaves; j >= i + 1; j--) {
         padre->hijos[j + 1] = padre->hijos[j];
     }
     padre->hijos[i + 1] = nuevo;
 
+    //hacer espacio en el nodo padre para la clave que sube desde el medio
     for (int j = padre->numClaves - 1; j >= i; j--) {
         padre->claves[j + 1] = padre->claves[j];
     }
+    
+    //la clave del medio (índice t-1) sube formalmente al padre
     padre->claves[i] = hijo->claves[t - 1];
     hijo->claves[t - 1] = nullptr;
+    
     padre->numClaves++;
 }
 
