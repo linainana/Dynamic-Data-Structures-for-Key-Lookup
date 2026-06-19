@@ -10,8 +10,11 @@ using namespace std::chrono;
 typedef unsigned char uchar;
 
 int total_nodos_creados = 0;
-long long total_bytes_palabras = 0; //cuenta el peso exacto de los caracteres en RAM
 
+//acumula la memoria utilizada por las palabras almacenadas dinámicamente
+long long total_bytes_palabras = 0; 
+
+//nodo de un árbol k-ario que almacena múltiples claves y referencias a hijos
 struct NodoKario {
     uchar** claves;       
     NodoKario** hijos;    
@@ -43,6 +46,7 @@ int obtenerLongitud(const string& str) {
     return str.length();
 }
 
+//crea una copia dinámica de una palabra para almacenarla en el árbol
 uchar* duplicarCadena(const string& str) {
     int len = str.length();
     total_bytes_palabras += (len + 1);
@@ -63,7 +67,7 @@ int comparar(const uchar* s1, const uchar* s2) {
     return (s1[i] == '\0') ? -1 : 1;
 }
 
-//limpieza recursiva profunda recorriendo el arreglo completo hasta K
+//libera recursivamente toda la memoria utilizada por el árbol
 void limpiarArbol(NodoKario* nodo) {
     if (nodo == nullptr) return;
     if (!nodo->esHoja) {
@@ -74,7 +78,7 @@ void limpiarArbol(NodoKario* nodo) {
     delete nodo;
 }
 
-//métodos operacionales del arbol 
+//busca una clave recorriendo el árbol de forma recursiva
 bool buscarAux(NodoKario* nodo, const uchar* clave) {
     if (nodo == nullptr) return false;
     int i = 0;
@@ -88,14 +92,13 @@ bool buscarAux(NodoKario* nodo, const uchar* clave) {
     return buscarAux(nodo->hijos[i], clave);
 }
 
+//divide un nodo lleno en dos nodos y promueve la clave central al padre
 void dividirHijo(NodoKario* padre, int i, NodoKario* hijo, int K) {
-    //definimos el punto medio exacto de la partición
     int t = (K + 1) / 2; 
     
     //el nuevo nodo (hermano derecho) recibirá la segunda mitad de los elementos
     NodoKario* nuevo = new NodoKario(K, hijo->esHoja);
     
-    //calculamos cuántas claves le quedan al nuevo nodo hermano
     nuevo->numClaves = K - t;
     
     //pasar la segunda mitad de las claves al nuevo nodo
@@ -126,13 +129,13 @@ void dividirHijo(NodoKario* padre, int i, NodoKario* hijo, int K) {
         padre->claves[j + 1] = padre->claves[j];
     }
     
-    //la clave del medio (índice t-1) sube al padre
     padre->claves[i] = hijo->claves[t - 1];
     hijo->claves[t - 1] = nullptr;
     
     padre->numClaves++;
 }
 
+//inserta una clave en un nodo que no se encuentra lleno
 void insertarNoLleno(NodoKario* nodo, const uchar* clave, int K) {
     int i = nodo->numClaves - 1;
     if (nodo->esHoja) {
@@ -157,6 +160,9 @@ void insertarNoLleno(NodoKario* nodo, const uchar* clave, int K) {
     }
 }
 
+//elimina una clave del árbol
+//en hojas la clave se elimina físicamente
+//en nodos internos se marca como eliminada para evitar alterar la estructura
 void eliminarAux(NodoKario* nodo, const uchar* clave) {
     if (nodo == nullptr) return;
     
@@ -191,7 +197,7 @@ void eliminarAux(NodoKario* nodo, const uchar* clave) {
     }
 }
 
-//función de cálculo de memoria dinámica adaptada al tamaño del parámetro K actual
+//estima el consumo de memoria considerando nodos, punteros y palabras almacenadas
 int calcular_memoria_arbol_dinamico(int total_nodos, int K) {
     //esqueleto del árbol
     int mem_por_nodo = (K * sizeof(uchar*)) + ((K + 1) * sizeof(NodoKario*)) + sizeof(int) + sizeof(bool) + sizeof(int);
@@ -204,6 +210,7 @@ int calcular_memoria_arbol_dinamico(int total_nodos, int K) {
     return mem;
 }
 
+//mezcla aleatoriamente las palabras para evitar sesgos en las pruebas experimentales
 void desordenarPalabras(string arreglo[], int tamano) {
     for (int i = tamano - 1; i > 0; i--) {
         int j = rand() % (i + 1);
