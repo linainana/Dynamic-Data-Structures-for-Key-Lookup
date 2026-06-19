@@ -1,5 +1,6 @@
 #include "Funciones.h"
 
+//retorna la longitud de una cadena terminada en '\0'
 int length(uchar* s){
   int i = 0;
   while(s[i] != '\0')
@@ -7,6 +8,8 @@ int length(uchar* s){
   return i;
 }
 
+//compara dos cadenas lexicográficamente
+//retorna -1, 0 o 1 según el orden relativo
 int compare(uchar* a, uchar* b){
   int i = 0;
   while(a[i] != '\0' && b[i] != '\0'){
@@ -23,6 +26,7 @@ int compare(uchar* a, uchar* b){
   return 1;
 }
 
+//crea una copia dinámica de una cadena
 uchar* copyString(uchar* s){
   int n = length(s);
   uchar* copia = new uchar[n + 1];
@@ -32,6 +36,7 @@ uchar* copyString(uchar* s){
   return copia;
 }
 
+//elimina caracteres de salto de línea al final de una cadena
 void cleanLine(uchar* s){
   int i = 0;
   while(s[i] != '\0'){
@@ -43,6 +48,7 @@ void cleanLine(uchar* s){
   }
 }
 
+//lee una palabra desde un archivo y la almacena en memoria dinámica
 uchar* readWord(ifstream& file){
   char buffer[256];
   while (file.getline(buffer, 256)){ 
@@ -65,6 +71,7 @@ uchar* readWord(ifstream& file){
   return nullptr;
 }
 
+//mezcla aleatoriamente el arreglo de palabras para evitar sesgos en las pruebas
 void desordenarPalabras(uchar** arreglo, int n) {
     for (int i = n - 1; i > 0; i--) {
         int j = rand() % (i + 1);
