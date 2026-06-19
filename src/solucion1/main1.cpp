@@ -27,7 +27,8 @@ int comparar(uchar* a, uchar* b){
     return 1;
 }
 
-//si el tamaño es igual a la capacidad, se debe redimensionar
+//redimensiona el arreglo cuando se alcanza la capacidad máxima
+//la nueva capacidad se calcula utilizando el factor de crecimiento 
 void redimensionar(arreglo_dinamico& arr){
     int nueva_capacidad = arr.capacidad + (arr.capacidad * arr.overhead);
 
@@ -46,6 +47,8 @@ void redimensionar(arreglo_dinamico& arr){
 
 }
 
+//actualiza el índice de la primera aparición de cada carácter inicial
+//esto permite acotar el rango de búsqueda binaria
 void actualizar_posiciones(arreglo_dinamico& arr) {
     for (int i = 0; i < 256; i++){
         arr.posiciones[i] = -1;
@@ -57,6 +60,7 @@ void actualizar_posiciones(arreglo_dinamico& arr) {
     }
 }
 
+//inserta una palabra manteniendo el orden lexicográfico del arreglo
 void insertar(arreglo_dinamico& arr, uchar* nueva_palabra){
     if (arr.tamano == arr.capacidad){
         redimensionar(arr);       
@@ -76,8 +80,10 @@ void insertar(arreglo_dinamico& arr, uchar* nueva_palabra){
     arr.tamano++;
 }
 
+//realiza una búsqueda binaria dentro del rango asociado a la letra inicial de la palabra buscada
 int busqueda_binaria(arreglo_dinamico& arr, uchar* palabra){
-    uchar primera_palabra = palabra[0];
+    //se utiliza la tabla de posiciones para restringir la búsqueda solo a las palabras que comienzan con la misma letra
+    uchar primera_palabra = palabra[0]; 
     int izq = arr.posiciones[primera_palabra];
     int der = arr.tamano - 1;
 
@@ -85,6 +91,7 @@ int busqueda_binaria(arreglo_dinamico& arr, uchar* palabra){
         return -1;
     }
 
+    //busca el inicio del siguiente bloque de letras para determinar el límite superior del rango de búsqueda
     for(int i= primera_palabra +1; i < 256; i++){
         if(arr.posiciones[i] != -1){
             der = arr.posiciones[i]-1;
@@ -114,6 +121,7 @@ int busqueda_binaria(arreglo_dinamico& arr, uchar* palabra){
     return -1;
 }
 
+//elimina una palabra desplazando los elementos posteriores para conservar el orden del arreglo
 bool eliminar(arreglo_dinamico& arr , uchar* palabra){
     int pos = busqueda_binaria(arr, palabra);
 
@@ -149,6 +157,7 @@ void desordenar_d2(uchar** arreglo, int n) {
     }
 }
 
+//estima la memoria ocupada por la estructura considerando: arreglo de punteros, palabras almacenadas y campos auxiliares
 int memoria_usada(arreglo_dinamico& arr) {
     int mem = arr.capacidad * 8;
 
@@ -158,7 +167,7 @@ int memoria_usada(arreglo_dinamico& arr) {
         mem += largo + 1;
     }
 
-    // el struct usa:
+    //el struct usa:
     //uchar** p: 8 bytes, int posiciones[256]: 256 * 4 = 1024 bytes
     //int capacidad: 4 bytes, int tamano: 4 bytes, double overhead: 8 bytes
     mem += 8 + 1024 + 4 + 4 + 8;
@@ -198,6 +207,7 @@ int main(int argc, char **argv){
     
     cout << "Cargando archivo d1... " << endl;
 
+    //construcción inicial del diccionario a partir del archivo D1
     auto start_const = high_resolution_clock::now();
 
     while(getline(archivo_d1, linea)){
@@ -224,7 +234,7 @@ int main(int argc, char **argv){
     cout << "Memoria usada: " << memoria_usada(arreglito) << " bytes." << endl;
 
    
-    //cargar d2
+    //carga las palabras de D2 para realizar pruebas masivas de búsqueda, inserción y eliminación
     ifstream archivo_d2(argv[2]); 
     if(!archivo_d2.is_open()){
         cout << "No se pudo abrir el archivo D2" << endl;
