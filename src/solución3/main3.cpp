@@ -89,22 +89,22 @@ bool buscarAux(NodoKario* nodo, const uchar* clave) {
 }
 
 void dividirHijo(NodoKario* padre, int i, NodoKario* hijo, int K) {
-    // Definimos el punto medio exacto de la partición
+    //definimos el punto medio exacto de la partición
     int t = (K + 1) / 2; 
     
-    // El nuevo nodo (hermano derecho) recibirá la segunda mitad de los elementos
+    //el nuevo nodo (hermano derecho) recibirá la segunda mitad de los elementos
     NodoKario* nuevo = new NodoKario(K, hijo->esHoja);
     
-    // Calculamos cuántas claves le quedan al nuevo nodo hermano
+    //calculamos cuántas claves le quedan al nuevo nodo hermano
     nuevo->numClaves = K - t;
     
-    // 1. Pasar la segunda mitad de las claves al nuevo nodo
+    //pasar la segunda mitad de las claves al nuevo nodo
     for (int j = 0; j < nuevo->numClaves; j++) {
         nuevo->claves[j] = hijo->claves[j + t];
         hijo->claves[j + t] = nullptr;
     }
     
-    // 2. Si no es hoja, pasar también la segunda mitad de los hijos correspondientes
+    //si no es hoja, pasar también la segunda mitad de los hijos correspondientes
     if (!hijo->esHoja) {
         for (int j = 0; j <= nuevo->numClaves; j++) {
             nuevo->hijos[j] = hijo->hijos[j + t];
@@ -112,21 +112,21 @@ void dividirHijo(NodoKario* padre, int i, NodoKario* hijo, int K) {
         }
     }
     
-    // Ajustamos el número de claves que se quedan en el hijo original
+    //ajustamos el número de claves que se quedan en el hijo original
     hijo->numClaves = t - 1;
 
-    // 3. Hacer espacio en el nodo padre para el nuevo hijo
+    //hacer espacio en el nodo padre para el nuevo hijo
     for (int j = padre->numClaves; j >= i + 1; j--) {
         padre->hijos[j + 1] = padre->hijos[j];
     }
     padre->hijos[i + 1] = nuevo;
 
-    // 4. Hacer espacio en el nodo padre para la clave que sube desde el medio
+    //hacer espacio en el nodo padre para la clave que sube desde el medio
     for (int j = padre->numClaves - 1; j >= i; j--) {
         padre->claves[j + 1] = padre->claves[j];
     }
     
-    // La clave del medio (índice t-1) sube formalmente al padre
+    //la clave del medio (índice t-1) sube al padre
     padre->claves[i] = hijo->claves[t - 1];
     hijo->claves[t - 1] = nullptr;
     
