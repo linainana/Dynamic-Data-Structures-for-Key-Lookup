@@ -81,7 +81,6 @@ Nodo* Grilla::search(uchar* palabra){
 bool Grilla::remove(uchar* palabra){
   //localización del nivel base (L1) para asegurar la integridad de la secuencia completa
   Nodo* base = head;
-  Nodo* base = head;
   if(base == nullptr) 
     return false;
   while(base->down != nullptr) 
