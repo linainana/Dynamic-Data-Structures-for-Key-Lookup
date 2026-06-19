@@ -11,7 +11,6 @@ Grilla::~Grilla(){
   deleteLevels(head);
 }
 
-//nodos
 Nodo* Grilla::createNode(uchar* palabra){
   Nodo* nuevo = new Nodo;
 
@@ -24,7 +23,6 @@ Nodo* Grilla::createNode(uchar* palabra){
   return nuevo;
 }
 
-//insertar
 bool Grilla::insert(uchar* palabra){
   Nodo* nuevo = createNode(palabra);
   //lista vacía
@@ -64,7 +62,6 @@ bool Grilla::insert(uchar* palabra){
   return true;
 }
 
-//buscar
 Nodo* Grilla::search(uchar* palabra){
   Nodo* p = head;
   while(p != nullptr){
@@ -79,7 +76,6 @@ Nodo* Grilla::search(uchar* palabra){
   return nullptr;
 }
 
-//eliminar 
 bool Grilla::remove(uchar* palabra){
   //bajar hasta el nivel base (L1)
   Nodo* base = head;
@@ -109,7 +105,6 @@ bool Grilla::remove(uchar* palabra){
      p->next->prev = p->prev;
   }
 
-  //liberar la memoria del nodo eliminado en L1
   delete[] p->key;
   delete p;
 
@@ -150,7 +145,7 @@ void Grilla::deleteUpperLevels(){
   levels = 1;
 }
 
-//imprimir 
+ 
 void Grilla::printLevel(Nodo* l){
   Nodo* p = l;
   while(p != nullptr){
@@ -171,7 +166,6 @@ void Grilla::printGrid(){
   }
 }
 
-//memoria 
 void Grilla ::deleteLevels(Nodo* l){
   while(l != nullptr){
     Nodo* nextLevel = l->down;
@@ -186,7 +180,6 @@ void Grilla ::deleteLevels(Nodo* l){
   }
 }
 
-//niveles
 int Grilla::sizeLevel(Nodo* l){
   int cont = 0;
   while(l != nullptr){
@@ -196,6 +189,7 @@ int Grilla::sizeLevel(Nodo* l){
   return cont;
 }
 
+//construye un nivel superior seleccionando cada k-ésimo nodo del nivel inferior
 Nodo* Grilla::buildUpperLevel(Nodo* lower){
   if(lower == nullptr)
     return nullptr;
@@ -227,6 +221,7 @@ Nodo* Grilla::buildUpperLevel(Nodo* lower){
   return upper;
 }
 
+//reconstruye toda la grilla a partir del nivel base generando niveles superiores cada k elementos
 void Grilla::rebuildGrid(){
   if(head == nullptr)
     return;
@@ -242,6 +237,7 @@ void Grilla::rebuildGrid(){
   head = nivelInferior;
 }
 
+//estima la memoria utilizada por todos los nodos y las palabras almacenadas
 int Grilla::memoria_usada() {
     int mem = 0;
     Nodo* nivelActual = head;
@@ -251,7 +247,7 @@ int Grilla::memoria_usada() {
         Nodo* p = nivelActual;
         while (p != nullptr) {
             mem += 32;
-            //sumamos los caracteres de la palabra (solo si estamos en el nivel base L1)
+          //sumamos los caracteres de la palabra almacenada
             if (p->key != nullptr) {
                 int largo = 0;
                 while (p->key[largo] != '\0') largo++;
