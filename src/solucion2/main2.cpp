@@ -89,7 +89,7 @@ int main(int argc, char **argv){
   
   auto start_insert = high_resolution_clock::now();
   for(int i = 0; i < n_insertar; i++){
-    if(g.insert(lote_d2[i])) {        // Intentamos re-insertar en la estructura
+    if(g.insert(lote_d2[i])) {        //intentamos re-insertar en la estructura
         inserciones_exitosas++;
     }
   }
