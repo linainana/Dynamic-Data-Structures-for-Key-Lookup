@@ -121,7 +121,7 @@ int busqueda_binaria(arreglo_dinamico& arr, uchar* palabra){
     return -1;
 }
 
-//elimina una palabra desplazando los elementos posteriores para conservar el orden del arreglo
+//elimina una palabra encontrada y desplaza los elementos restantes para conservar el orden
 bool eliminar(arreglo_dinamico& arr , uchar* palabra){
     int pos = busqueda_binaria(arr, palabra);
 
@@ -141,6 +141,7 @@ bool eliminar(arreglo_dinamico& arr , uchar* palabra){
     return true;
 }
 
+//elimina espacios y caracteres de salto de línea al inicio y final de cada palabra leída
 void limpiar_linea(string& linea) {
     while (!linea.empty() && (linea.back() == '\r' || linea.back() == '\n' || linea.back() == ' '))
         linea.pop_back();
@@ -148,6 +149,7 @@ void limpiar_linea(string& linea) {
         linea.erase(linea.begin());
 }
 
+//mezcla aleatoriamente las palabras para evitar que las pruebas dependan del orden original del archivo
 void desordenar_d2(uchar** arreglo, int n) {
     for (int i = n - 1; i > 0; i--) {
         int j = rand() % (i + 1);
@@ -167,9 +169,6 @@ int memoria_usada(arreglo_dinamico& arr) {
         mem += largo + 1;
     }
 
-    //el struct usa:
-    //uchar** p: 8 bytes, int posiciones[256]: 256 * 4 = 1024 bytes
-    //int capacidad: 4 bytes, int tamano: 4 bytes, double overhead: 8 bytes
     mem += 8 + 1024 + 4 + 4 + 8;
 
     return mem;
@@ -182,7 +181,7 @@ int main(int argc, char **argv){
     }
 
     cout << fixed;
-    cout.precision(10); //muestra los numeros con 10 cifras después del punto decimal
+    cout.precision(10); 
     srand(42);
 
     arreglo_dinamico arreglito;
@@ -262,7 +261,7 @@ int main(int argc, char **argv){
 
     desordenar_d2(d2_tamano, total_d2);
 
-    //búsqueda masiva
+    //prueba experimental de búsqueda sobre las palabras cargadas desde D2
     int encontradas = 0;
     cout << "Buscando " << total_d2 << " palabras de d2 desordenadas..." << endl;
 
@@ -277,7 +276,7 @@ int main(int argc, char **argv){
     cout << "Tiempo total de busqueda: " << t_search.count() << " segundos." << endl;
     cout << "Tiempo promedio por palabra: " << t_search.count() / total_d2 << " segundos." << endl;
 
-    //inserción masiva
+    //prueba experimental de inserción utilizando 5000 palabras de D2 en orden aleatorio
     int n_insertar = (total_d2 < 5000) ? total_d2 : 5000;
     uchar* para_insertar[5000];
     for (int i = 0; i < n_insertar; i++) {
@@ -302,7 +301,7 @@ int main(int argc, char **argv){
     cout << "Tiempo total de insercion: " << t_insert.count() << " segundos." << endl;
     cout << "Palabras totales tras insercion: " << arreglito.tamano << endl;
 
-    //eliminación masiva
+    //prueba experimental de eliminación utilizando 5000 palabras seleccionadas desde D2
     int n_eliminar = (total_d2 < 5000) ? total_d2 : 5000;
     int inicio_ultimas = total_d2 - n_eliminar;
 
@@ -330,7 +329,7 @@ int main(int argc, char **argv){
     cout << "Tiempo total de eliminacion: " << t_remove.count() << " segundos." << endl;
     cout << "Palabras totales tras eliminacion: " << arreglito.tamano << endl;
 
-    //liberación de memoria
+    //libera toda la memoria dinámica utilizada durante la ejecución
     for (int i = 0; i < n_eliminar; i++) delete[] para_eliminar[i];
     for (int i = 0; i < total_d2; i++) delete[] d2_tamano[i];
     for (int i = 0; i < arreglito.tamano; i++) delete[] arreglito.p[i];
