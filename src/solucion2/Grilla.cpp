@@ -42,7 +42,7 @@ bool Grilla::insert(uchar* palabra){
   compare(p->next->key, palabra) < 0){
     p = p->next;
   }
-  //palabra repetida
+  //previene la inserción si la palabra ya existe
   if(compare(p->key, palabra) == 0){
     delete[] nuevo->key;
     delete nuevo;
@@ -65,19 +65,22 @@ bool Grilla::insert(uchar* palabra){
 Nodo* Grilla::search(uchar* palabra){
   Nodo* p = head;
   while(p != nullptr){
+    //vavegación horizontal rápida usando los índices del nivel superior
     while(p->next != nullptr && compare(p->next->key, palabra) <= 0){
       p = p->next;
     }
     if(compare(p->key, palabra) == 0){
       return p;
     } 
+    //descenso al siguiente nivel de la grilla (atajos más cortos)
     p = p->down;
   }
   return nullptr;
 }
 
 bool Grilla::remove(uchar* palabra){
-  //bajar hasta el nivel base (L1)
+  //localización del nivel base (L1) para asegurar la integridad de la secuencia completa
+  Nodo* base = head;
   Nodo* base = head;
   if(base == nullptr) 
     return false;
@@ -92,7 +95,7 @@ bool Grilla::remove(uchar* palabra){
   if(p == nullptr) 
     return false;
  
-  //desconectar el nodo de la lista doblemente enlazada (L1)
+  //desconexión física del nodo en la lista doblemente enlazada base
   if(p->prev != nullptr){
     p->prev->next = p->next; 
   } else {
@@ -108,12 +111,9 @@ bool Grilla::remove(uchar* palabra){
   delete[] p->key;
   delete p;
 
-  //saneamiento y actualización de la grilla 
-  //borramos los índices viejos que ya no son validos 
+  //se eliminan todos los niveles superiores de índices viciados 
+  //se reconstruye la grilla desde el nivel base modificado 
   deleteUpperLevels();
-
-  //ahora 'head' apunta al inicio de L1
-  //reconsttruimos los niveles superiores para mantener la eficiencia de búsqueda
   rebuildGrid();
 
   return true;
@@ -230,6 +230,7 @@ void Grilla::rebuildGrid(){
     base = base->down;
   Nodo* nivelInferior = base;
   levels = 1;
+  //itera creando niveles mientras el nivel inferior exceda el tamaño K
   while(sizeLevel(nivelInferior) > k){
     nivelInferior = buildUpperLevel(nivelInferior);
     levels++;
