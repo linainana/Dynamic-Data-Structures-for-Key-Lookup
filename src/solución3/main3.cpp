@@ -22,6 +22,7 @@ struct NodoKario {
     bool esHoja;          
     int K;                
 
+    //inicializa un nodo vacío con capacidad para K claves
     NodoKario(int k, bool hoja) : K(k), esHoja(hoja), numClaves(0) {
         claves = new uchar*[K];
         hijos = new NodoKario*[K + 1];
@@ -41,7 +42,6 @@ struct NodoKario {
     }
 };
 
-//conversión y comparación lexicográfica 
 int obtenerLongitud(const string& str) {
     return str.length();
 }
@@ -56,6 +56,8 @@ uchar* duplicarCadena(const string& str) {
     return destino;
 }
 
+//compara dos palabras lexicográficamente
+//retorna -1, 0 o 1 según el orden relativo
 int comparar(const uchar* s1, const uchar* s2) {
     int i = 0;
     while (s1[i] != '\0' && s2[i] != '\0') {
@@ -96,18 +98,15 @@ bool buscarAux(NodoKario* nodo, const uchar* clave) {
 void dividirHijo(NodoKario* padre, int i, NodoKario* hijo, int K) {
     int t = (K + 1) / 2; 
     
-    //el nuevo nodo (hermano derecho) recibirá la segunda mitad de los elementos
+    //crea un nuevo nodo y transfiere la mitad superior de claves e hijos
     NodoKario* nuevo = new NodoKario(K, hijo->esHoja);
     
     nuevo->numClaves = K - t;
-    
-    //pasar la segunda mitad de las claves al nuevo nodo
     for (int j = 0; j < nuevo->numClaves; j++) {
         nuevo->claves[j] = hijo->claves[j + t];
         hijo->claves[j + t] = nullptr;
     }
-    
-    //si no es hoja, pasar también la segunda mitad de los hijos correspondientes
+
     if (!hijo->esHoja) {
         for (int j = 0; j <= nuevo->numClaves; j++) {
             nuevo->hijos[j] = hijo->hijos[j + t];
@@ -115,16 +114,12 @@ void dividirHijo(NodoKario* padre, int i, NodoKario* hijo, int K) {
         }
     }
     
-    //ajustamos el número de claves que se quedan en el hijo original
     hijo->numClaves = t - 1;
-
-    //hacer espacio en el nodo padre para el nuevo hijo
     for (int j = padre->numClaves; j >= i + 1; j--) {
         padre->hijos[j + 1] = padre->hijos[j];
     }
+    
     padre->hijos[i + 1] = nuevo;
-
-    //hacer espacio en el nodo padre para la clave que sube desde el medio
     for (int j = padre->numClaves - 1; j >= i; j--) {
         padre->claves[j + 1] = padre->claves[j];
     }
@@ -240,10 +235,12 @@ int main(int argc, char **argv) {
 
     string palabra;
     auto start_const = high_resolution_clock::now();
+    //carga las palabras de D1 construyendo el árbol de forma incremental
     while (filed1 >> palabra) {
         if (!palabra.empty()) {
             uchar* temp_clave = duplicarCadena(palabra);
             if (!buscarAux(raiz, temp_clave)) {
+                //si la raíz está llena, se crea una nueva raíz y se divide el árbol
                 if (raiz->numClaves == K_param) {
                     NodoKario* nuevaRaiz = new NodoKario(K_param, false);
                     nuevaRaiz->hijos[0] = raiz;
