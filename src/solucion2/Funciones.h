@@ -9,14 +9,14 @@ using namespace std;
 
 typedef unsigned char uchar;
 
-//funnciones para uchar*
-int length(uchar* s); //largo de una palabra
-int compare(uchar* a, uchar* b); //compara lexicográficamente
-//retorna -1 si a<b, 0 si a==b, 1 si a>b
-uchar* copyString(uchar* s); //copia una palabra 
+//utilidades para manejo de cadenas
+int length(uchar* s); 
+int compare(uchar* a, uchar* b); 
+uchar* copyString(uchar* s); 
 
-//archivos
-void cleanLine(uchar* s); //elimina salto de línea
+//utilidades para lectura y procesamiento de archivos
+void cleanLine(uchar* s);
 void desordenarPalabras(uchar** arreglo, int n);
-uchar* readWord(ifstream& file); //lee una palabra desde archivo
+uchar* readWord(ifstream& file); 
+
 #endif
